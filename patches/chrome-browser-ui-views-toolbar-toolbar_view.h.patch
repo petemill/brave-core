@@ -1,0 +1,30 @@
+diff --git a/chrome/browser/ui/views/toolbar/toolbar_view.h b/chrome/browser/ui/views/toolbar/toolbar_view.h
+index 1813188d8f903cee26c8ca6e5e68c756b689a52d..9c643538706839a3193a3a2c46df2e7dc87fefb8 100644
+--- a/chrome/browser/ui/views/toolbar/toolbar_view.h
++++ b/chrome/browser/ui/views/toolbar/toolbar_view.h
+@@ -15,6 +15,7 @@
+ #include "chrome/browser/ui/toolbar/back_forward_menu_model.h"
+ #include "chrome/browser/ui/views/frame/browser_root_view.h"
+ #include "chrome/browser/ui/views/frame/toolbar_button_provider.h"
++#include "brave/browser/ui/views/location_bar/location_bar_wrapper_view.h"
+ #include "chrome/browser/ui/views/location_bar/location_bar_view.h"
+ #include "chrome/browser/ui/views/profiles/avatar_toolbar_button.h"
+ #include "chrome/browser/ui/views/toolbar/browser_actions_container.h"
+@@ -110,7 +111,7 @@ class ToolbarView : public views::AccessiblePaneView,
+   BrowserActionsContainer* browser_actions() const { return browser_actions_; }
+   ToolbarButton* back_button() const { return back_; }
+   ReloadButton* reload_button() const { return reload_; }
+-  LocationBarView* location_bar() const { return location_bar_; }
++  BraveLocationBarWrapperView* location_bar() const { return location_bar_; }
+   AvatarToolbarButton* avatar_button() const { return avatar_; }
+   BrowserAppMenuButton* app_menu_button() const { return app_menu_button_; }
+   HomeButton* home_button() const { return home_; }
+@@ -229,7 +230,7 @@ class ToolbarView : public views::AccessiblePaneView,
+   ToolbarButton* forward_ = nullptr;
+   ReloadButton* reload_ = nullptr;
+   HomeButton* home_ = nullptr;
+-  LocationBarView* location_bar_ = nullptr;
++  BraveLocationBarWrapperView* location_bar_ = nullptr;
+   BrowserActionsContainer* browser_actions_ = nullptr;
+   AvatarToolbarButton* avatar_ = nullptr;
+   BrowserAppMenuButton* app_menu_button_ = nullptr;

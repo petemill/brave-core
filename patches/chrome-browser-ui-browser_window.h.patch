@@ -1,0 +1,22 @@
+diff --git a/chrome/browser/ui/browser_window.h b/chrome/browser/ui/browser_window.h
+index 8b0efa48aeb201aeba84ecf4d3f70b81d816d371..d91fc9ad16484d92daa9b965536ba275501342da 100644
+--- a/chrome/browser/ui/browser_window.h
++++ b/chrome/browser/ui/browser_window.h
+@@ -35,7 +35,7 @@ class DownloadShelf;
+ class ExclusiveAccessContext;
+ class FindBar;
+ class GURL;
+-class LocationBar;
++class BraveLocationBarWrapperView;
+ class PageActionIconContainer;
+ class StatusBubble;
+ class ToolbarActionsBar;
+@@ -171,7 +171,7 @@ class BrowserWindow : public ui::BaseWindow {
+   virtual PageActionIconContainer* GetPageActionIconContainer() = 0;
+ 
+   // Returns the location bar.
+-  virtual LocationBar* GetLocationBar() const = 0;
++  virtual BraveLocationBarWrapperView* GetLocationBar() const = 0;
+ 
+   // Tries to focus the location bar.  Clears the window focus (to avoid
+   // inconsistent state) if this fails.

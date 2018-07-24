@@ -1,0 +1,17 @@
+diff --git a/chrome/browser/ui/views/location_bar/location_bar_view.cc b/chrome/browser/ui/views/location_bar/location_bar_view.cc
+index bc8c76a21935f392d40aa0ac1798d8e9b3cdbc7b..99aabe9bc85a80394728cb694e9e6ac80cf6ccf4 100644
+--- a/chrome/browser/ui/views/location_bar/location_bar_view.cc
++++ b/chrome/browser/ui/views/location_bar/location_bar_view.cc
+@@ -253,10 +253,12 @@ void LocationBarView::Init() {
+     page_action_icons_.push_back(intent_picker_view_ =
+                                      new IntentPickerView(browser_, this));
+ #endif
++#if !defined(BRAVE_CHROMIUM_BUILD)
+   if (browser_) {
+     page_action_icons_.push_back(
+         star_view_ = new StarView(command_updater(), browser_, this));
+   }
++#endif
+ 
+   for (PageActionIconView* icon_view : page_action_icons_) {
+     icon_view->Init();

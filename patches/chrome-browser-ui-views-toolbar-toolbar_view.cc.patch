@@ -1,0 +1,40 @@
+diff --git a/chrome/browser/ui/views/toolbar/toolbar_view.cc b/chrome/browser/ui/views/toolbar/toolbar_view.cc
+index 3965bc59d1c67af0b84baa052054a5f854904533..b43b3ba1f06e679fc18f94d527a83c409e459e4f 100644
+--- a/chrome/browser/ui/views/toolbar/toolbar_view.cc
++++ b/chrome/browser/ui/views/toolbar/toolbar_view.cc
+@@ -69,6 +69,8 @@
+ #include "ui/views/widget/tooltip_manager.h"
+ #include "ui/views/widget/widget.h"
+ #include "ui/views/window/non_client_view.h"
++#include "brave/browser/ui/views/toolbar/bookmark_button.h"
++#include "brave/browser/ui/views/location_bar/location_bar_wrapper_view.h"
+ 
+ #if defined(OS_WIN) || defined(OS_MACOSX)
+ #include "chrome/browser/recovery/recovery_install_global_error_factory.h"
+@@ -139,7 +141,7 @@ ToolbarView::~ToolbarView() {
+ }
+ 
+ void ToolbarView::Init() {
+-  location_bar_ = new LocationBarView(browser_, browser_->profile(),
++  location_bar_ = new BraveLocationBarWrapperView(browser_, browser_->profile(),
+                                       browser_->command_controller(), this,
+                                       !is_display_mode_normal());
+ 
+@@ -308,6 +310,7 @@ void ToolbarView::ShowBookmarkBubble(
+     bool already_bookmarked,
+     bookmarks::BookmarkBubbleObserver* observer) {
+   views::View* anchor_view = location_bar();
++
+   PageActionIconView* const star_view = location_bar()->star_view();
+   if (!ui::MaterialDesignController::IsSecondaryUiMaterial()) {
+     if (star_view && star_view->visible())
+@@ -316,6 +319,9 @@ void ToolbarView::ShowBookmarkBubble(
+       anchor_view = app_menu_button_;
+   }
+ 
++  // Show BookmarkBubble attached to Brave's bookmark buttonx
++
++
+   std::unique_ptr<BubbleSyncPromoDelegate> delegate;
+   delegate.reset(new BookmarkBubbleSignInDelegate(browser_));
+   views::Widget* bubble_widget = BookmarkBubbleView::ShowBubble(

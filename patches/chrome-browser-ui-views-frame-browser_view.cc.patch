@@ -1,0 +1,66 @@
+diff --git a/chrome/browser/ui/views/frame/browser_view.cc b/chrome/browser/ui/views/frame/browser_view.cc
+index 9d34c208874d79b9b12ba2d5605bb5bb86f8b629..559b391ef81498ada929eed6dbe0131a6b8ef54c 100644
+--- a/chrome/browser/ui/views/frame/browser_view.cc
++++ b/chrome/browser/ui/views/frame/browser_view.cc
+@@ -84,6 +84,7 @@
+ #include "chrome/browser/ui/views/ime/ime_warning_bubble_view.h"
+ #include "chrome/browser/ui/views/infobars/infobar_container_view.h"
+ #include "chrome/browser/ui/views/location_bar/location_bar_view.h"
++#include "brave/browser/ui/views/location_bar/location_bar_wrapper_view.h"
+ #include "chrome/browser/ui/views/location_bar/star_view.h"
+ #include "chrome/browser/ui/views/omnibox/omnibox_view_views.h"
+ #include "chrome/browser/ui/views/page_action/page_action_icon_container_view.h"
+@@ -992,7 +993,7 @@ PageActionIconContainer* BrowserView::GetPageActionIconContainer() {
+   return toolbar_button_provider_->GetPageActionIconContainerView();
+ }
+ 
+-LocationBar* BrowserView::GetLocationBar() const {
++BraveLocationBarWrapperView* BrowserView::GetLocationBar() const {
+   return GetLocationBarView();
+ }
+ 
+@@ -1015,7 +1016,7 @@ void BrowserView::SetFocusToLocationBar(bool select_all) {
+       immersive_mode_controller_->GetRevealedLock(
+           ImmersiveModeController::ANIMATE_REVEAL_YES));
+ 
+-  LocationBarView* location_bar = GetLocationBarView();
++  BraveLocationBarWrapperView* location_bar = GetLocationBarView();
+   if (location_bar->omnibox_view()->IsFocusable()) {
+     // Location bar got focus.
+     location_bar->FocusLocation(select_all);
+@@ -1219,7 +1220,7 @@ autofill::SaveCardBubbleView* BrowserView::ShowSaveCreditCardBubble(
+     content::WebContents* web_contents,
+     autofill::SaveCardBubbleController* controller,
+     bool user_gesture) {
+-  LocationBarView* location_bar = GetLocationBarView();
++  BraveLocationBarWrapperView* location_bar = GetLocationBarView();
+   PageActionIconView* card_view = location_bar->save_credit_card_icon_view();
+ 
+   views::View* anchor_view = location_bar;
+@@ -1246,7 +1247,7 @@ autofill::LocalCardMigrationBubble* BrowserView::ShowLocalCardMigrationBubble(
+     content::WebContents* web_contents,
+     autofill::LocalCardMigrationBubbleController* controller,
+     bool user_gesture) {
+-  LocationBarView* location_bar = GetLocationBarView();
++  BraveLocationBarWrapperView* location_bar = GetLocationBarView();
+   PageActionIconView* card_view =
+       location_bar->local_card_migration_icon_view();
+ 
+@@ -1516,7 +1517,7 @@ BookmarkBarView* BrowserView::GetBookmarkBarView() const {
+   return bookmark_bar_view_.get();
+ }
+ 
+-LocationBarView* BrowserView::GetLocationBarView() const {
++BraveLocationBarWrapperView* BrowserView::GetLocationBarView() const {
+   return toolbar_ ? toolbar_->location_bar() : nullptr;
+ }
+ 
+@@ -1958,7 +1959,7 @@ void BrowserView::OnWidgetMove() {
+   BookmarkBubbleView::Hide();
+ 
+   // Close the omnibox popup, if any.
+-  LocationBarView* location_bar_view = GetLocationBarView();
++  BraveLocationBarWrapperView* location_bar_view = GetLocationBarView();
+   if (location_bar_view)
+     location_bar_view->GetOmniboxView()->CloseOmniboxPopup();
+ }

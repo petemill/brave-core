@@ -1,0 +1,30 @@
+diff --git a/chrome/browser/ui/views/frame/browser_view.h b/chrome/browser/ui/views/frame/browser_view.h
+index c6d36ab7ac4a25d95c78e43610dbe45824cd5a0e..b7a5debbee905c25f666db3707a293474a51c374 100644
+--- a/chrome/browser/ui/views/frame/browser_view.h
++++ b/chrome/browser/ui/views/frame/browser_view.h
+@@ -60,6 +60,7 @@ class ExclusiveAccessBubbleViews;
+ class FullscreenControlHost;
+ class InfoBarContainerView;
+ class LocationBarView;
++class BraveLocationBarWrapperView;
+ class StatusBubbleViews;
+ class TabStrip;
+ class ToolbarButtonProvider;
+@@ -314,7 +315,7 @@ class BrowserView : public BrowserWindow,
+   bool IsFullscreen() const override;
+   bool IsFullscreenBubbleVisible() const override;
+   PageActionIconContainer* GetPageActionIconContainer() override;
+-  LocationBar* GetLocationBar() const override;
++  BraveLocationBarWrapperView* GetLocationBar() const override;
+   void SetFocusToLocationBar(bool select_all) override;
+   void UpdateReloadStopState(bool is_loading, bool force) override;
+   void UpdateToolbar(content::WebContents* contents) override;
+@@ -397,7 +398,7 @@ class BrowserView : public BrowserWindow,
+   bool IsVisibleOnAllWorkspaces() const override;
+ 
+   BookmarkBarView* GetBookmarkBarView() const;
+-  LocationBarView* GetLocationBarView() const;
++  BraveLocationBarWrapperView* GetLocationBarView() const;
+ 
+   // TabStripModelObserver:
+   void TabInsertedAt(TabStripModel* tab_strip_model,
