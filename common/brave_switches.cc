@@ -23,4 +23,6 @@ const char kDisablePDFJSExtension[] = "disable-pdfjs-extension";
 // Allows disabling the Tor client updater extension.
 const char kDisableTorClientUpdaterExtension[] = "disable-tor-client-updater-extension";
 
+const char kUiMode[] = "ui-mode";
+
 }  // namespace switches
