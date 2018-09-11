@@ -5,6 +5,13 @@
 /components/brave_webtorrent/extension/out/
 /dist/
 /out/
+/vendor/sparkle
+/vendor/brave-extension
+/vendor/bip39wally-core-native
+/vendor/bat-native-anonize
+/vendor/bat-native-rapidjson
+/vendor/bat-native-ledger
+/vendor/bat-native-tweetnacl
 /vendor/requests
 /vendor/boto
 /vendor/brightray/vendor/download/
