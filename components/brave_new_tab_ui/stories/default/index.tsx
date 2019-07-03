@@ -5,8 +5,8 @@
 import * as React from 'react'
 
 // Feature-specific components
-import { Clock } from '../../../../src/features/newTab/default/clock'
-import { Page, Header, Main, Footer, DynamicBackground, Gradient } from '../../../../src/features/newTab/default'
+import { Clock } from '../../components/default/clock'
+import { Page, Header, Main, Footer, DynamicBackground, Gradient } from '../../components/default'
 
 import Settings from './settings'
 import TopSitesList from './topSites/topSitesList'
@@ -17,9 +17,6 @@ import FooterInfo from './footerInfo'
 // Assets
 import { getRandomBackgroundData } from './helpers'
 import { images } from './data/background'
-
-import '../../../assets/fonts/muli.css'
-import '../../../assets/fonts/poppins.css'
 
 const generateRandomBackgroundData = getRandomBackgroundData(images)
 interface State {
