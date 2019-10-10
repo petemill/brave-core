@@ -10,6 +10,7 @@
 #include <memory>
 #include <string>
 
+#include "brave/browser/extensions/api/brave_action_api.h"
 #include "chrome/browser/ui/views/toolbar/toolbar_action_view.h"
 #include "chrome/browser/ui/toolbar/toolbar_action_view_controller.h"
 #include "chrome/browser/ui/browser.h"
@@ -19,6 +20,7 @@
 #include "extensions/common/extension.h"
 #include "ui/views/view.h"
 
+class BraveActionViewController;
 class BraveActionsContainerTest;
 class BraveRewardsBrowserTest;
 
@@ -31,6 +33,7 @@ class ExtensionRegistry;
 // TODO(petemill): consider splitting to separate model, like
 // ToolbarActionsModel and ToolbarActionsBar
 class BraveActionsContainer : public views::View,
+                              public extensions::BraveActionAPI::Observer,
                               public extensions::ExtensionActionAPI::Observer,
                               public extensions::ExtensionRegistryObserver,
                               public ToolbarActionView::Delegate {
@@ -40,7 +43,6 @@ class BraveActionsContainer : public views::View,
   void Init();
   void Update();
   void SetShouldHide(bool should_hide);
-
   // ToolbarActionView::Delegate
   content::WebContents* GetCurrentWebContents() override;
   bool ShownInsideMenu() const override;
@@ -103,7 +105,7 @@ class BraveActionsContainer : public views::View,
 
     int position_;
     std::unique_ptr<ToolbarActionView> view_;
-    std::unique_ptr<ToolbarActionViewController> view_controller_;
+    std::unique_ptr<BraveActionViewController> view_controller_;
   };
 
   // Actions that belong to the container
@@ -121,6 +123,10 @@ class BraveActionsContainer : public views::View,
   bool IsActionShown(const std::string& id) const;
   void UpdateActionState(const std::string& id);
 
+  // BraveActionAPI::Observer
+  void OnBraveActionShouldTrigger(const std::string& extension_id,
+      std::unique_ptr<std::string> ui_relative_path) override;
+
   bool should_hide_ = false;
 
   // The Browser this LocationBarView is in.  Note that at least
@@ -133,6 +139,7 @@ class BraveActionsContainer : public views::View,
   extensions::ExtensionActionAPI* extension_action_api_;
   extensions::ExtensionRegistry* extension_registry_;
   extensions::ExtensionActionManager* extension_action_manager_;
+  extensions::BraveActionAPI* brave_action_api_;
 
   // Listen to extension load, unloaded notifications.
   ScopedObserver<extensions::ExtensionRegistry,
@@ -143,6 +150,11 @@ class BraveActionsContainer : public views::View,
   ScopedObserver<extensions::ExtensionActionAPI,
                  extensions::ExtensionActionAPI::Observer>
       extension_action_observer_;
+
+  // Listen to when we need to open a popup
+  ScopedObserver<extensions::BraveActionAPI,
+                 extensions::BraveActionAPI::Observer>
+      brave_action_observer_;
 
   // Listen for Brave Rewards preferences changes.
   BooleanPrefMember brave_rewards_enabled_;

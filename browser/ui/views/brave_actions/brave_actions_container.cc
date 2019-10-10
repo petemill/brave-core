@@ -46,13 +46,16 @@ void BraveActionsContainer::BraveActionInfo::Reset() {
 
 BraveActionsContainer::BraveActionsContainer(Browser* browser, Profile* profile)
     : views::View(),
+      extensions::BraveActionAPI::Observer(browser),
       browser_(browser),
       extension_action_api_(extensions::ExtensionActionAPI::Get(profile)),
       extension_registry_(extensions::ExtensionRegistry::Get(profile)),
       extension_action_manager_(
           extensions::ExtensionActionManager::Get(profile)),
+      brave_action_api_(extensions::BraveActionAPI::Get(profile)),
       extension_registry_observer_(this),
       extension_action_observer_(this),
+      brave_action_observer_(this),
       weak_ptr_factory_(this) {
   // Handle when the extension system is ready
   extensions::ExtensionSystem::Get(profile)->ready().Post(
@@ -268,6 +271,7 @@ void BraveActionsContainer::OnExtensionSystemReady() {
   // observe changes in extension system
   extension_registry_observer_.Add(extension_registry_);
   extension_action_observer_.Add(extension_action_api_);
+  brave_action_observer_.Add(brave_action_api_);
   // Check if brave extension already loaded
   const extensions::Extension* extension =
           extension_registry_->enabled_extensions().GetByID(brave_extension_id);
@@ -306,6 +310,23 @@ void BraveActionsContainer::OnExtensionActionUpdated(
     UpdateActionState(extension_action->extension_id());
 }
 // end ExtensionActionAPI::Observer
+
+// BraveActionAPI::Observer
+void BraveActionsContainer::OnBraveActionShouldTrigger(
+    const std::string& extension_id,
+    std::unique_ptr<std::string> ui_relative_path) {
+  if (!IsContainerAction(extension_id)) {
+    return;
+  }
+  if (actions_[extension_id].view_controller_) {
+    if (ui_relative_path)
+      actions_[extension_id].view_controller_
+          ->ExecuteActionUI(*ui_relative_path);
+    else
+      actions_[extension_id].view_controller_
+          ->ExecuteAction(true);
+  }
+}
 
 void BraveActionsContainer::ChildPreferredSizeChanged(views::View* child) {
   PreferredSizeChanged();
