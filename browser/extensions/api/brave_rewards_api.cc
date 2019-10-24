@@ -66,9 +66,8 @@ ExtensionFunction::ResponseAction BraveRewardsOpenBrowserActionUIFunction::Run(
   std::unique_ptr<brave_rewards::OpenBrowserActionUI::Params> params(
       brave_rewards::OpenBrowserActionUI::Params::Create(*args_));
   EXTENSION_FUNCTION_VALIDATE(params.get());
-  Profile* profile = Profile::FromBrowserContext(browser_context());
   std::string error;
-  if (!BraveActionAPI::Get(profile)->ShowActionUI(this,
+  if (!BraveActionAPI::ShowActionUI(this,
       brave_rewards_extension_id,
       std::move(params->window_id),
       std::move(params->relative_path), &error)) {

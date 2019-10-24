@@ -11,53 +11,82 @@
 #include <utility>
 
 #include "base/lazy_instance.h"
-#include "chrome/browser/ui/browser.h"
+#include "components/keyed_service/core/dependency_manager.h"
+#include "components/keyed_service/core/keyed_service_factory.h"
 #include "chrome/browser/extensions/api/tabs/tabs_constants.h"
 #include "chrome/browser/extensions/api/tabs/windows_util.h"
 #include "chrome/browser/extensions/chrome_extension_function_details.h"
 #include "chrome/browser/extensions/window_controller.h"
-#include "content/public/browser/browser_context.h"
+#include "chrome/browser/profiles/profile.h"
+#include "chrome/browser/ui/browser.h"
 #include "extensions/browser/extension_function.h"
+
+namespace {
+
+class BraveActionAPIDependencyManager : public DependencyManager {
+ public:
+  static BraveActionAPIDependencyManager* GetInstance() {
+    static base::NoDestructor<BraveActionAPIDependencyManager> factory;
+    return factory.get();
+  }
+ private:
+  BraveActionAPIDependencyManager() { }
+  ~BraveActionAPIDependencyManager() override;
+};
+
+BraveActionAPIDependencyManager::~BraveActionAPIDependencyManager() { }
+
+class BraveActionAPIFactory : public KeyedServiceFactory {
+ public:
+  BraveActionAPIFactory() : KeyedServiceFactory("BraveActionAPI",
+      BraveActionAPIDependencyManager::GetInstance(), SIMPLE) { }
+
+  extensions::BraveActionAPI* GetBraveActionAPI(Browser* context) {
+    return static_cast<extensions::BraveActionAPI*>(
+          GetServiceForContext(context, true));
+  }
+ private:
+  // KeyedServiceFactory:
+  std::unique_ptr<KeyedService> BuildServiceInstanceFor(
+void* context) const final {
+    return base::WrapUnique(new extensions::BraveActionAPI());
+  }
+  bool IsOffTheRecord(void* context) const final {
+    return static_cast<Browser*>(context)
+        ->profile()->IsOffTheRecord();
+  }
+  DISALLOW_COPY_AND_ASSIGN(BraveActionAPIFactory);
+};
+
+static BraveActionAPIFactory* GetFactoryInstance() {
+  static base::NoDestructor<BraveActionAPIFactory> instance;
+  return instance.get();
+}
+
+
+// DnsProbeServiceFactory* DnsProbeServiceFactory::GetInstance() {
+//   return base::Singleton<DnsProbeServiceFactory>::get();
+// }
+
+}  // namespace
 
 namespace extensions {
 //
 // BraveActionAPI::Observer
 //
-BraveActionAPI::Observer::Observer(Browser* browser) : browser_(browser) { }
+BraveActionAPI::Observer::Observer() { }
 
 BraveActionAPI::Observer::~Observer() { }
 
 //
 // BraveActionAPI
 //
-
-static base::LazyInstance<BrowserContextKeyedAPIFactory<BraveActionAPI>>::
-    DestructorAtExit g_brave_action_api_factory = LAZY_INSTANCE_INITIALIZER;
-
-BraveActionAPI::BraveActionAPI(content::BrowserContext* context) {}
-
-BraveActionAPI::~BraveActionAPI() {
+// static
+BraveActionAPI* BraveActionAPI::Get(Browser* context) {
+  GetFactoryInstance()->GetBraveActionAPI(context);
 }
 
 // static
-BrowserContextKeyedAPIFactory<BraveActionAPI>*
-BraveActionAPI::GetFactoryInstance() {
-  return g_brave_action_api_factory.Pointer();
-}
-
-// static
-BraveActionAPI* BraveActionAPI::Get(content::BrowserContext* context) {
-  return BrowserContextKeyedAPIFactory<BraveActionAPI>::Get(context);
-}
-
-void BraveActionAPI::AddObserver(Observer* observer) {
-  observers_.AddObserver(observer);
-}
-
-void BraveActionAPI::RemoveObserver(Observer* observer) {
-  observers_.RemoveObserver(observer);
-}
-
 bool BraveActionAPI::ShowActionUI(
       ExtensionFunction* extension_function,
       const std::string& extension_id,
@@ -93,13 +122,29 @@ bool BraveActionAPI::ShowActionUI(
     *error = "Browser doesn't support toolbar";
     return false;
   }
-  // Pass event to correct observer
-  for (auto& observer : observers_) {
-    if (observer.browser_ == browser) {
-      observer.OnBraveActionShouldTrigger(extension_id,
-          std::move(ui_relative_path_param));
-    }
-  }
+  BraveActionAPI::Get(browser)->NotifyObservers(extension_id,
+      std::move(ui_relative_path_param));
   return true;
+}
+
+BraveActionAPI::BraveActionAPI() {}
+
+BraveActionAPI::~BraveActionAPI() {
+}
+
+void BraveActionAPI::AddObserver(Observer* observer) {
+  observers_.AddObserver(observer);
+}
+
+void BraveActionAPI::RemoveObserver(Observer* observer) {
+  observers_.RemoveObserver(observer);
+}
+
+void BraveActionAPI::NotifyObservers(const std::string& extension_id,
+      std::unique_ptr<std::string> ui_relative_path_param) {
+  for (auto& observer : observers_) {
+    observer.OnBraveActionShouldTrigger(extension_id,
+        std::move(ui_relative_path_param));
+  }
 }
 }  // namespace extensions

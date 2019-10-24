@@ -9,52 +9,44 @@
 #include <memory>
 #include <string>
 
+#include "components/keyed_service/core/keyed_service.h"
 #include "extensions/browser/extension_function.h"
-#include "extensions/browser/browser_context_keyed_api_factory.h"
 #include "extensions/common/extension.h"
 
 class Browser;
-namespace content {
-class BrowserContext;
-}
 
 namespace extensions {
-class BraveActionAPI : public BrowserContextKeyedAPI {
+class BraveActionAPI : public KeyedService {
  public:
   class Observer {
    public:
-    explicit Observer(Browser* browser);
+    explicit Observer();
     virtual void OnBraveActionShouldTrigger(
       const std::string& extension_id,
       std::unique_ptr<std::string> ui_relative_path) = 0;
 
    protected:
-    friend class BraveActionAPI;
     virtual ~Observer();
-    Browser* browser_;
   };
 
-  explicit BraveActionAPI(content::BrowserContext* context);
-  ~BraveActionAPI() override;
-
-  static BraveActionAPI* Get(content::BrowserContext* context);
-
-  static BrowserContextKeyedAPIFactory<BraveActionAPI>* GetFactoryInstance();
-
-  // Add or remove observers.
-  void AddObserver(Observer* observer);
-  void RemoveObserver(Observer* observer);
-
-  bool ShowActionUI(
+  static BraveActionAPI* Get(Browser* context);
+  static bool ShowActionUI(
         ExtensionFunction* extension_function,
         const std::string& extension_id,
         std::unique_ptr<int> window_id,
         std::unique_ptr<std::string> ui_relative_path,
         std::string* error);
 
+  explicit BraveActionAPI();
+  ~BraveActionAPI() override;
+
+  // Add or remove observers.
+  void AddObserver(Observer* observer);
+  void RemoveObserver(Observer* observer);
+ protected:
+  void NotifyObservers(const std::string& extension_id,
+      std::unique_ptr<std::string> ui_relative_path_param);
  private:
-  friend class BrowserContextKeyedAPIFactory<BraveActionAPI>;
-  static const char* service_name() { return "BraveActionAPI"; }
   base::ObserverList<Observer>::Unchecked observers_;
 
   DISALLOW_COPY_AND_ASSIGN(BraveActionAPI);
