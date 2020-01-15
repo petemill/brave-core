@@ -9,17 +9,23 @@
 #include <memory>
 
 #include "components/keyed_service/core/keyed_service.h"
+#include "brave/components/ntp_sponsored_images/ntp_sponsored_images_component_manager.h"
 #include "components/prefs/pref_change_registrar.h"
 #include "brave/browser/ui/webui/new_tab_page/branded_wallpaper.h"
 
 class Profile;
+struct NTPSponsoredImagesData;
 
-class NewTabPageBrandedViewCounter : public KeyedService {
+class NewTabPageBrandedViewCounter : public KeyedService,
+                          public NTPSponsoredImagesComponentManager::Observer {
  public:
   static NewTabPageBrandedViewCounter* GetForProfile(Profile* profile);
 
   explicit NewTabPageBrandedViewCounter(Profile* profile);
   ~NewTabPageBrandedViewCounter() override;
+
+  // NTPSponsoredImagesComponentManager::Observer
+  void OnUpdated(const NTPSponsoredImagesData& data) override;
 
   // Lets the counter know that a New Tab Page view has occured.
   // This should always be called as it will evaluate whether the user has
