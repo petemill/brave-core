@@ -5,11 +5,14 @@
 import * as React from 'react'
 import createWidget from '../widget/index'
 import { convertBalance } from '../../../../brave_rewards/resources/page/utils'
-import { getLocale } from '../../../../common/locale'
+import { getLocale, splitStringForTag } from '../../../../common/locale'
 
 import {
   WidgetWrapper,
+  WidgetLayer,
+  NotificationsList,
   BatIcon,
+  CloseIcon,
   RewardsTitle,
   Footer,
   ServiceText,
@@ -22,17 +25,16 @@ import {
   PreOptInAction,
   TurnOnButton,
   AmountItem,
-  AmountInformation,
   AmountDescription,
   Amount,
   ConvertedAmount,
-  LearnMoreLink,
+  AmountUSD,
   TurnOnAdsButton,
   UnsupportedMessage
 } from './style'
 import Notification from './notification'
 import BrandedWallpaperNotification from './brandedWallpaperNotification'
-import { BatColorIcon } from 'brave-ui/components/icons'
+import { BatColorIcon, CloseStrokeIcon } from 'brave-ui/components/icons'
 
 export interface RewardsProps {
   enabledAds: boolean
@@ -48,6 +50,7 @@ export interface RewardsProps {
   onlyAnonWallet?: boolean
   adsSupported?: boolean
   isShowingBrandedWallpaper: boolean
+  isNotification?: boolean
   showBrandedWallpaperNotification: boolean
   brandedWallpaperData?: NewTab.BrandedWallpaper
   onCreateWallet: () => void
@@ -109,20 +112,16 @@ class Rewards extends React.PureComponent<RewardsProps, {}> {
     let titleText: string | JSX.Element
     let subTitleText: string | JSX.Element
     if (isShowingBrandedWallpaper) {
-      titleText = getLocale('rewardsWidgetBrandedWallpaperTitle')
-      const text = getLocale('rewardsWidgetBrandedWallpaperSubTitle')
-      const linkStartIndex: number = text.indexOf('|')
-      const linkEndIndex: number = text.lastIndexOf('|')
-      const beforeLinkText = text.substring(0, linkStartIndex)
-      const duringLinkText = text.substring(linkStartIndex + 1, linkEndIndex)
-      const afterLinkText = text.substring(linkEndIndex + 1)
+      titleText = getLocale('rewardsWidgetEnableBrandedWallpaperTitle')
+      const text = getLocale('rewardsWidgetEnableBrandedWallpaperSubTitle')
+      const { beforeTag, duringTag, afterTag } = splitStringForTag(text, '$1', '$2')
       subTitleText = (
         <>
-          {beforeLinkText}
+          {beforeTag}
           <SubTitleLink onClick={this.props.onDisableBrandedWallpaper}>
-            {duringLinkText}
+            {duringTag}
           </SubTitleLink>
-          {afterLinkText}
+          {afterTag}
         </>
       )
     } else if (hasEnabled) {
@@ -176,13 +175,6 @@ class Rewards extends React.PureComponent<RewardsProps, {}> {
 
     return (
       <AmountItem isLast={type === AmountItemType.TIPS}>
-        <AmountDescription>
-          {
-            type === AmountItemType.ADS
-            ? getLocale('rewardsWidgetEstimatedEarnings')
-            : getLocale('rewardsWidgetMonthlyTips')
-          }
-        </AmountDescription>
         {
           showEnableAds
           ? <TurnOnAdsButton onClick={onEnableAds}>
@@ -192,12 +184,12 @@ class Rewards extends React.PureComponent<RewardsProps, {}> {
         }
         {
           !showEnableAds && !(type === AmountItemType.ADS && !adsSupported)
-          ? <AmountInformation data-test-id={`widget-amount-total-${type}`}>
+          ? <div data-test-id={`widget-amount-total-${type}`}>
               <Amount>{amount.toFixed(1)}</Amount>
               <ConvertedAmount>
-                {`${batFormatString} ${converted} USD`}
+                {batFormatString}<AmountUSD>{converted} USD</AmountUSD>
               </ConvertedAmount>
-            </AmountInformation>
+            </div>
           : null
         }
         {
@@ -207,6 +199,13 @@ class Rewards extends React.PureComponent<RewardsProps, {}> {
             </UnsupportedMessage>
           : null
         }
+        <AmountDescription>
+          {
+            type === AmountItemType.ADS
+            ? getLocale('rewardsWidgetEstimatedEarnings')
+            : getLocale('rewardsWidgetMonthlyTips')
+          }
+        </AmountDescription>
       </AmountItem>
     )
   }
@@ -230,12 +229,15 @@ class Rewards extends React.PureComponent<RewardsProps, {}> {
   }
 
   renderLearnMore = () => {
+    const text = getLocale('rewardsWidgetAboutRewards')
+    const { beforeTag, duringTag, afterTag } = splitStringForTag(text, '$1', '$2')
     return (
       <LearnMoreText>
-        <LearnMoreLink target={'_blank'} href={'chrome://rewards'}>
-          {getLocale('learnMore')}
-        </LearnMoreLink>
-        {getLocale('rewardsWidgetAboutRewards')}
+        {beforeTag}
+        <ServiceLink href={'chrome://rewards'}>
+          {duringTag}
+        </ServiceLink>
+        {afterTag}
       </LearnMoreText>
     )
   }
@@ -250,8 +252,13 @@ class Rewards extends React.PureComponent<RewardsProps, {}> {
     )
   }
 
-  renderNotifications = () => {
-    let { promotions, onDismissNotification } = this.props
+  renderNotifications = (singleOrphaned = false) => {
+    let {
+      promotions,
+      onDismissNotification,
+      enabledAds,
+      onEnableAds
+    } = this.props
 
     // Uncomment for demo promotion notifications data:
     //
@@ -263,9 +270,14 @@ class Rewards extends React.PureComponent<RewardsProps, {}> {
     //   }]
     // }
 
+    // TODO(petemill): If we want a true 'single' mode then
+    // only show a single notification from any source.
+    // For now, this only happens for the branded wallpaper notification.
+    promotions = singleOrphaned ? [] : (promotions || [])
+    const Wrapper = singleOrphaned ? React.Fragment : NotificationsList
     return (
-      <>
-        {promotions && promotions.map((promotion: NewTab.Promotion, index) => {
+      <Wrapper>
+        {promotions.map((promotion: NewTab.Promotion, index) => {
           return (
             <Notification
               promotion={promotion}
@@ -277,39 +289,63 @@ class Rewards extends React.PureComponent<RewardsProps, {}> {
         })}
         { this.props.showBrandedWallpaperNotification &&
         <BrandedWallpaperNotification
+          isOrphan={singleOrphaned}
           onDismissNotification={onDismissNotification}
+          onEnableAds={enabledAds ? undefined : onEnableAds}
           brandedWallpaperData={this.props.brandedWallpaperData}
-          onNotificationAction={this.props.onDisableBrandedWallpaper}
+          onHideSponsoredImages={this.props.onDisableBrandedWallpaper}
           order={promotions ? promotions.length + 1 : 1}
         />
         }
-      </>
+      </Wrapper>
     )
+  }
+
+  dismissNotification (notificationType: string) {
+    this.props.onDismissNotification(notificationType)
   }
 
   render () {
     const {
       enabledMain,
-      walletCreated
+      walletCreated,
+      isNotification
     } = this.props
 
+    // Handle isNotification:
+    //   - if rewards isn't on, we ourselves are a notification
+    //   - if rewards is on, only show a single notification (the last one)
+    //     (intended for branded wallpaper notification).
+    if (isNotification) {
+      if (enabledMain) {
+        return this.renderNotifications(true)
+      }
+    }
+
     return (
-      <WidgetWrapper>
-        <BatIcon>
-          <BatColorIcon />
-        </BatIcon>
-        <RewardsTitle>
-          {getLocale('rewardsWidgetBraveRewards')}
-        </RewardsTitle>
-        {this.renderPreOptIn()}
-        {this.renderRewardsInfo()}
-        <Footer>
-          {
-            enabledMain && walletCreated
-            ? this.renderLearnMore()
-            : this.renderPrivacyPolicy()
+      <WidgetWrapper isEnabled={enabledMain}>
+        <WidgetLayer>
+          {isNotification &&
+          <CloseIcon onClick={this.dismissNotification.bind(this, 'brandedWallpaper')}>
+            <CloseStrokeIcon />
+          </CloseIcon>
           }
-        </Footer>
+          <RewardsTitle>
+            <BatIcon>
+              <BatColorIcon />
+            </BatIcon>
+            {getLocale('rewardsWidgetBraveRewards')}
+          </RewardsTitle>
+          {this.renderPreOptIn()}
+          {this.renderRewardsInfo()}
+          <Footer>
+            {
+              enabledMain && walletCreated
+              ? this.renderLearnMore()
+              : this.renderPrivacyPolicy()
+            }
+          </Footer>
+        </WidgetLayer>
         {
           enabledMain
           ? this.renderNotifications()

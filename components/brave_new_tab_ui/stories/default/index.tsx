@@ -223,7 +223,7 @@ export default class NewTabPage extends React.PureComponent<Props, State> {
             />
           </S.GridItemNotification>
           }
-          {showRewards &&
+          {(showRewards || showBrandedWallpaper) &&
           <S.GridItemRewards>
             <Rewards
               promotions={promotions}
@@ -246,6 +246,8 @@ export default class NewTabPage extends React.PureComponent<Props, State> {
               showBrandedWallpaperNotification={showBrandedWallpaper}
               brandedWallpaperData={this.state.brandedWallpaper}
               isShowingBrandedWallpaper={showBrandedWallpaper}
+              isNotification={!showRewards}
+              preventFocus={!showRewards}
               onDisableBrandedWallpaper={this.doNothing.bind(this, 'onDisableBrandedWallpaper')}
             />
           </S.GridItemRewards>
