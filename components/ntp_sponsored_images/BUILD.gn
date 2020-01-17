@@ -1,9 +1,15 @@
 source_set("ntp_sponsored_images") {
-  # TODO(simonhong): Change to //chrome/*
-  # Currently, brave_ads component has //chrome/android dependency.
-  # assert_no_deps = [ "//chrome/*" ]
+  assert_no_deps = [ "//chrome/*" ]
 
   sources = [
+    "locale_helper.cc",
+    "locale_helper.h",
+    "locale_helper_linux.cc",
+    "locale_helper_linux.h",
+    "locale_helper_mac.mm",
+    "locale_helper_mac.h",
+    "locale_helper_win.cc",
+    "locale_helper_win.h",
     "ntp_sponsored_images_component_manager.cc",
     "ntp_sponsored_images_component_manager.h",
     "ntp_sponsored_images_data.cc",
@@ -24,9 +30,7 @@ source_set("ntp_sponsored_images") {
 
   deps = [
     "//base",
-    "//brave/components/brave_ads/browser",
     "//brave/components/brave_component_updater/browser",
-    "//brave/vendor/bat-native-ads",
     "//components/component_updater",
     "//components/keyed_service/core",
     "//content/public/browser",

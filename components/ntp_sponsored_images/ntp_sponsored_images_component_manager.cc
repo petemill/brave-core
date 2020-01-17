@@ -6,21 +6,25 @@
 #include "brave/components/ntp_sponsored_images/ntp_sponsored_images_component_manager.h"
 
 #include <algorithm>
+#include <vector>
 
 #include "base/bind.h"
 #include "base/files/file_util.h"
 #include "base/json/json_reader.h"
+#include "base/strings/string_util.h"
+#include "base/strings/string_split.h"
 #include "base/task/post_task.h"
 #include "base/values.h"
-#include "brave/components/brave_ads/browser/locale_helper.h"
+#include "brave/components/ntp_sponsored_images/locale_helper.h"
 #include "brave/components/ntp_sponsored_images/ntp_sponsored_images_data.h"
 #include "brave/components/ntp_sponsored_images/ntp_sponsored_images_internal_data.h"
 #include "brave/components/ntp_sponsored_images/regional_component_data.h"
 #include "brave/components/ntp_sponsored_images/switches.h"
-#include "brave/vendor/bat-native-ads/src/bat/ads/internal/locale_helper.h"
 #include "content/public/browser/browser_context.h"
 
 namespace {
+
+constexpr char kDefaultRegion[] = "US";
 
 constexpr char kPhotoJsonFilename[] = "photo.json";
 constexpr char kComponentName[] = "NTP sponsored images";
@@ -29,6 +33,28 @@ constexpr char kLogoAltTextKey[] = "logoAltText";
 constexpr char kLogoCompanyNameKey[] = "logoCompanyName";
 constexpr char kLogoDestinationURLKey[] = "logoDestinationUrl";
 constexpr char kWallpaperImageURLsKey[] = "wallpaperImageUrls";
+
+const std::string GetRegionCode(const std::string& locale) {
+  std::vector<std::string> locale_components = base::SplitString(locale, ".",
+      base::KEEP_WHITESPACE, base::SPLIT_WANT_NONEMPTY);
+
+  if (locale_components.size() == 0) {
+    return kDefaultRegion;
+  }
+
+  auto normalized_locale = locale_components.front();
+  std::replace(normalized_locale.begin(), normalized_locale.end(), '-', '_');
+
+  std::vector<std::string> components = base::SplitString(
+      normalized_locale, "_", base::KEEP_WHITESPACE, base::SPLIT_WANT_ALL);
+
+  if (components.size() != 2) {
+    return kDefaultRegion;
+  }
+
+  auto region_code = components.at(1);
+  return region_code;
+}
 
 std::string ReadPhotoJsonData(const base::FilePath& photo_json_file_path) {
   std::string contents;
@@ -66,9 +92,8 @@ NTPSponsoredImagesComponentManager::NTPSponsoredImagesComponentManager(
 #endif
 
   const std::string locale =
-      brave_ads::LocaleHelper::GetInstance()->GetLocale();
-  if (const auto& data = GetRegionalComponentData(
-          helper::Locale::GetRegionCode(locale))) {
+      internal::LocaleHelper::GetInstance()->GetLocale();
+  if (const auto& data = GetRegionalComponentData(GetRegionCode(locale))) {
     Register(kComponentName,
              data->component_id,
              data->component_base64_public_key);
