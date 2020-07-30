@@ -6,7 +6,7 @@ import { Reducer } from 'redux'
 import { types } from '../constants/gemini_types'
 import * as storage from '../storage/new_tab_storage'
 
-const geminiReducer: Reducer<NewTab.State | undefined> = (state: NewTab.State, action) => {
+const geminiReducer: Reducer<NewTab.State> = (state: NewTab.State, action) => {
   const payload = action.payload
 
   switch (action.type) {

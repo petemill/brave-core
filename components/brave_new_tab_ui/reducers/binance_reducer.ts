@@ -7,7 +7,7 @@ import { types } from '../constants/binance_types'
 import { isValidClientURL } from '../binance-utils'
 import * as storage from '../storage/new_tab_storage'
 
-const binanceReducer: Reducer<NewTab.State | undefined> = (state: NewTab.State, action) => {
+const binanceReducer: Reducer<NewTab.State> = (state: NewTab.State, action) => {
   const payload = action.payload
 
   switch (action.type) {

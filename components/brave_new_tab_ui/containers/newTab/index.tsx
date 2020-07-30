@@ -29,12 +29,14 @@ import { isGridSitePinned } from '../../helpers/newTabUtils'
 import { generateQRData } from '../../binance-utils'
 
 // Types
+import { BraveTodayState } from '../../reducers/today'
 import { SortEnd } from 'react-sortable-hoc'
 import * as newTabActions from '../../actions/new_tab_actions'
 import * as gridSitesActions from '../../actions/grid_sites_actions'
 import * as binanceActions from '../../actions/binance_actions'
 import * as geminiActions from '../../actions/gemini_actions'
 import * as rewardsActions from '../../actions/rewards_actions'
+import * as todayActions from '../../actions/today_actions'
 import { getLocale } from '../../../common/locale'
 import currencyData from '../../components/default/binance/data'
 import geminiData from '../../components/default/gemini/data'
@@ -45,8 +47,8 @@ import Settings from './settings'
 interface Props {
   newTabData: NewTab.State
   gridSitesData: NewTab.GridSitesState
-  todayData: NewTab.BraveTodayState
-  actions: typeof newTabActions & typeof gridSitesActions & typeof binanceActions & typeof rewardsActions & typeof geminiActions
+  todayData: BraveTodayState
+  actions: typeof newTabActions & typeof gridSitesActions & typeof binanceActions & typeof rewardsActions & typeof geminiActions & typeof todayActions
   saveShowBackgroundImage: (value: boolean) => void
   saveShowClock: (value: boolean) => void
   saveShowTopSites: (value: boolean) => void
@@ -977,6 +979,8 @@ class NewTabPage extends React.Component<Props, State> {
         <BraveToday
           setOpacityForItems={this.setOpacityForItems}
           feed={this.props.todayData.feed}
+          onAnotherPageNeeded={() => this.props.actions.anotherPageNeeded()}
+          pagesToLoad={this.props.todayData.currentPageIndex + 1}
         />
         }
         <Settings

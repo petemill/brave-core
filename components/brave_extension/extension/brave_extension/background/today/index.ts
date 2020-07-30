@@ -32,7 +32,6 @@ function performUpdateFeed() {
       const feedResponse = await fetch(feedUrl)
       if (feedResponse.ok) {
         const feedContents: RemoteData = await feedResponse.json()
-        console.log('Got feed', feedContents)
         memoryTodayData = await feedToData(feedContents)
         resolve()
         chrome.storage.local.set({ today: memoryTodayData })
@@ -78,7 +77,6 @@ import Messages = BraveToday.Messages
 Background.setListener<void>(
   MessageTypes.indicatingOpen,
   async function (payload, sender) {
-    console.log('indicatingOpen')
     updateFeed()
   }
 )
@@ -86,11 +84,9 @@ Background.setListener<void>(
 Background.setListener<Messages.GetFeedResponse>(
   MessageTypes.getFeed,
   async function (req, sender, sendResponse) {
-    console.log('asked to get feed')
     const feed = await getOrFetchData()
     // Only wait once. If there was an error or no data then return nothing.
     // TODO: return error status
-    console.log('sending', feed)
     sendResponse({
       feed
     })

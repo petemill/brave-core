@@ -12,9 +12,15 @@ import gridSitesReducer from './grid_sites_reducer'
 import binanceReducer from './binance_reducer'
 import rewardsReducer from './rewards_reducer'
 import geminiReducer from './gemini_reducer'
-import todayReducer from './today'
+import todayReducer, { BraveTodayState } from './today'
 
-export const newTabReducers = (state: NewTab.State | undefined, action: any) => {
+export type ApplicationState = {
+  newTabData: NewTab.State
+  gridSitesData: NewTab.GridSitesState
+  today: BraveTodayState
+}
+
+export const newTabDataReducers = (state: NewTab.State, action: any) => {
   if (state === undefined) {
     state = storage.load()
   }
@@ -33,8 +39,8 @@ export const newTabReducers = (state: NewTab.State | undefined, action: any) => 
   return state
 }
 
-export const mainNewTabReducer = combineReducers<NewTab.ApplicationState>({
-  newTabData: newTabReducers,
+export const mainNewTabReducer = combineReducers<ApplicationState>({
+  newTabData: newTabDataReducers,
   gridSitesData: gridSitesReducer,
   today: todayReducer
 })

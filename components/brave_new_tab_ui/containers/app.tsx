@@ -20,16 +20,24 @@ import * as geminiActions from '../actions/gemini_actions'
 import * as todayActions from '../actions/today_actions'
 import * as PreferencesAPI from '../api/preferences'
 
-interface Props {
-  actions: typeof newTabActions & typeof gridSitesActions & typeof binanceActions & typeof rewardsActions & typeof geminiActions & typeof todayActions
-  newTabData: NewTab.State
-  gridSitesData: NewTab.GridSitesState
-  braveTodayData: NewTab.BraveTodayState
+// Types
+import { ApplicationState } from '../reducers'
+
+type ActionProps =
+  typeof newTabActions &
+  typeof gridSitesActions &
+  typeof binanceActions &
+  typeof rewardsActions &
+  typeof geminiActions &
+  typeof todayActions
+
+type Props = ApplicationState & {
+  actions: ActionProps
 }
 
 class DefaultPage extends React.Component<Props, {}> {
   render () {
-    const { newTabData, braveTodayData, gridSitesData, actions } = this.props
+    const { newTabData, today, gridSitesData, actions } = this.props
 
     // don't render if user prefers an empty page
     if (this.props.newTabData.showEmptyPage && !this.props.newTabData.isIncognito) {
@@ -41,7 +49,7 @@ class DefaultPage extends React.Component<Props, {}> {
       : (
         <NewTabPage
           newTabData={newTabData}
-          todayData={braveTodayData}
+          todayData={today}
           gridSitesData={gridSitesData}
           actions={actions}
           saveShowBackgroundImage={PreferencesAPI.saveShowBackgroundImage}
@@ -59,10 +67,8 @@ class DefaultPage extends React.Component<Props, {}> {
   }
 }
 
-const mapStateToProps = (state: NewTab.ApplicationState): Partial<Props> => ({
-  newTabData: state.newTabData,
-  gridSitesData: state.gridSitesData,
-  braveTodayData: state.today
+const mapStateToProps = (state: ApplicationState): Partial<Props> => ({
+  ...state
 })
 
 const mapDispatchToProps = (dispatch: Dispatch): Partial<Props> => {

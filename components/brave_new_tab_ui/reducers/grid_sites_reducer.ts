@@ -15,8 +15,8 @@ import * as storage from '../storage/grid_sites_storage'
 
 const initialState = storage.load()
 
-export const gridSitesReducer: Reducer<NewTab.GridSitesState | undefined> = (
-  state: NewTab.GridSitesState | undefined,
+export const gridSitesReducer: Reducer<NewTab.GridSitesState> = (
+  state: NewTab.GridSitesState,
   action
 ) => {
   if (state === undefined) {

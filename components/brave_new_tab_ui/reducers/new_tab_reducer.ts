@@ -25,7 +25,7 @@ function performSideEffect (fn: SideEffectFunction): void {
   window.setTimeout(() => fn(sideEffectState), 0)
 }
 
-export const newTabReducer: Reducer<NewTab.State | undefined> = (state: NewTab.State, action) => {
+export const newTabReducer: Reducer<NewTab.State> = (state: NewTab.State, action) => {
   const payload = action.payload
 
   switch (action.type) {

@@ -11,27 +11,24 @@ import CardSmallest from './_deals/cardDealSmall'
 import CardMedium from './_deals/cardDealLarge'
 
 interface Props {
-  content: (BraveToday.Deal | undefined)[]
+  content?: BraveToday.Deal[]
 }
 
-class CardDeals extends React.PureComponent<Props, {}> {
-  render () {
-    const { content }: Props = this.props
-
-    // no full content no render®
-    if (content.length === 0) {
-      return null
-    }
-
-    if (content.length % 2 === 0) {
-      return <CardSmall content={content} />
-    }
-    if (content.length % 3 === 0) {
-      return <CardSmallest content={content} />
-    }
-    // Defaults to 1 large card at a time
-    return <CardMedium content={content} />
+export default function CardDeals ({ content }: Props) {
+  if (!content) {
+    return null
   }
-}
+  // no full content no render®
+  if (content.length === 0) {
+    return null
+  }
 
-export default CardDeals
+  if (content.length % 2 === 0) {
+    return <CardSmall content={content} />
+  }
+  if (content.length % 3 === 0) {
+    return <CardSmallest content={content} />
+  }
+  // Defaults to 1 large card at a time
+  return <CardMedium content={content} />
+}

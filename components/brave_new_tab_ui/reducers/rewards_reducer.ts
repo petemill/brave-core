@@ -7,7 +7,7 @@ import { types } from '../constants/rewards_types'
 import { getTotalContributions } from '../rewards-utils'
 import { InitialRewardsData, PreInitialRewardsData } from '../api/initialData'
 
-const rewardsReducer: Reducer<NewTab.State | undefined> = (state: NewTab.State, action) => {
+const rewardsReducer: Reducer<NewTab.State> = (state: NewTab.State, action) => {
   const payload = action.payload
 
   switch (action.type) {
