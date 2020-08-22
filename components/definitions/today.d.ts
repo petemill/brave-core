@@ -64,6 +64,7 @@ declare namespace BraveToday {
     publisher_id: string // "buzzfeed"
     publisher_logo: string // "https://nlbtest.rapidpacket.com/logos/buzzfeed.com.png"
     publisher_name: string // "BuzzFeed"
+    score: number // 14.411660240576094
     // Custom for this application. Does not come from source
     points?: number
   }

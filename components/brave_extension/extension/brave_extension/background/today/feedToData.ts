@@ -204,8 +204,7 @@ async function weightArticles(articles: BraveToday.Article[]): Promise<BraveToda
   const historyItems: chrome.history.HistoryItem[] = await new Promise(resolve => chrome.history.search({ text: '', maxResults: 200 }, resolve))
   const historyHosts: string[] = historyItems.map(h => h.url).filter(i => i).map((u: string) => domainFromUrlString(u))
   for (const article of articles) {
-    const secondsSincePublish = Math.abs((new Date().getTime() - new Date(article.publish_time).getTime()) / 1000)
-    let score = Math.log(secondsSincePublish)
+    let score = article.score
     const hasDomainHistoryMatch = historyHosts.includes(domainFromUrlString(article.url))
     if (hasDomainHistoryMatch) {
       score -= 5
